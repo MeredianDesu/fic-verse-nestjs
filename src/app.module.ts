@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Genre } from './modules/genre/entities/genre.entity'
-import { GenreService } from './modules/genre/genre.service'
-import { GenreController } from './modules/genre/genre.controller'
 import * as dotenv from 'dotenv'
+
+import { AuthorModule } from './modules/author/author.module'
+import { GenreModule } from './modules/genre/genre.module'
+import { FanficModule } from './modules/fanfic/fanfic.module'
 
 dotenv.config()
 
@@ -16,13 +17,13 @@ dotenv.config()
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DATABASE,
-      entities: [Genre],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.SYNCHRONIZE === 'true',
     }),
-    TypeOrmModule.forFeature([Genre]),
+    AuthorModule,
+    GenreModule,
+    FanficModule,
   ],
-  providers: [GenreService],
-  controllers: [GenreController],
 })
 export class AppModule {}
 

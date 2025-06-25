@@ -1,4 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common'
+import {
+  ConflictException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common'
 import { CreateGenreDto } from './dto/create-genre.dto'
 import { UpdateGenreDto } from './dto/update-genre.dto'
 import { GenreServiceInterface } from './interfaces/genre.service.interface'
@@ -13,23 +20,44 @@ export class GenreService implements GenreServiceInterface {
     private genreRepository: Repository<Genre>,
   ) {}
 
-  create(createGenreDto: CreateGenreDto) {
-    return 'This action adds a new genre'
+  async create(createGenreDto: CreateGenreDto) {
+    const isGenreExist = await this.genreRepository.exists({ where: { title: createGenreDto.title } })
+
+    if (isGenreExist) {
+      throw new ConflictException('Genre already exist.')
+    }
+
+    const genre = this.genreRepository.create(createGenreDto)
+
+    return await this.genreRepository.save(genre)
   }
 
-  findAll() {
-    return `This action returns all genre`
+  async findAll() {
+    return await this.genreRepository.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} genre`
+  async findOne(id: number) {
+    try {
+      const oneGenre = await this.genreRepository.findOneOrFail({ where: { id: id } })
+
+      return oneGenre
+    } catch (error) {
+      throw new NotFoundException('Genre not found.')
+    }
   }
 
   update(id: number, updateGenreDto: UpdateGenreDto) {
     return `This action updates a #${id} genre`
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} genre`
+  async remove(id: number) {
+    try {
+      const oneGenre = await this.genreRepository.findOneOrFail({ where: { id: id } })
+      await this.genreRepository.remove(oneGenre)
+
+      return { message: 'Genre removed.', statusCode: 200 }
+    } catch (error) {
+      throw new NotFoundException('Genre not found.')
+    }
   }
 }
