@@ -1,7 +1,9 @@
 import { IsOptional } from 'class-validator'
 import { Author } from 'src/modules/author/entities/author.entity'
+import { Chapter } from 'src/modules/chapter/entities/chapter.entity'
 import { Genre } from 'src/modules/genre/entities/genre.entity'
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Page } from 'src/modules/page/entities/page.entity'
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity()
 export class Fanfic {
@@ -61,4 +63,7 @@ export class Fanfic {
   @ManyToMany(() => Genre)
   @JoinTable()
   genres: Genre[]
+
+  @OneToMany(() => Chapter, (chapter) => chapter.fanfic)
+  chapters: Chapter[]
 }
