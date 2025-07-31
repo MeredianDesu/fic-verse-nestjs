@@ -1,15 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional } from 'class-validator'
 
-export class CreateAuthorDto {
+export class DisplayAuthorDto {
+  @ApiProperty()
+  id: number
+
   @ApiProperty()
   name: string
 
   @ApiProperty()
   email: string
-
-  @ApiProperty()
-  password: string
 
   @ApiProperty()
   avatar: string
@@ -19,4 +18,13 @@ export class CreateAuthorDto {
 
   @ApiProperty()
   about: string
+
+  @ApiProperty()
+  tariffPlan: string
+
+  @ApiProperty()
+  role: string
+
+  @ApiProperty()
+  createdAt: Date
 }

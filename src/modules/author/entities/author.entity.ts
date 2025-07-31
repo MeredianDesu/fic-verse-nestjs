@@ -7,22 +7,29 @@ export class Author {
   @PrimaryGeneratedColumn()
   readonly id: number
 
-  @Column()
+  @Column({ default: null })
+  @IsOptional()
   name: string
 
   @Column()
+  email: string
+
+  @Column()
+  password: string
+
+  @Column({ default: null })
   @IsOptional()
   avatar: string
 
-  @Column({ name: 'cover_url' })
+  @Column({ name: 'cover_url', default: null })
   @IsOptional()
   coverUrl: string
 
-  @Column()
+  @Column({ default: null })
   @IsOptional()
   about: string
 
-  @Column({ name: 'tariff_plan' })
+  @Column({ name: 'tariff_plan', default: 'standard' })
   @IsOptional()
   tariffPlan: string
 
@@ -35,7 +42,7 @@ export class Author {
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean
 
-  @Column()
+  @Column({ default: 'user' })
   @IsOptional()
   role: string
 
@@ -43,5 +50,6 @@ export class Author {
   readonly createdAt: Date
 
   @OneToMany(() => Fanfic, (fanfic) => fanfic.author)
+  @IsOptional()
   fanfics: Fanfic[]
 }
