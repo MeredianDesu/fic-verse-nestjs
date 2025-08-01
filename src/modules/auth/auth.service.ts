@@ -1,10 +1,18 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { AuthServiceInterface } from './interfaces/auth.service.interface'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Author } from '../author/entities/author.entity'
 import { Repository } from 'typeorm'
 import { SignUpDto } from './dto/sign-up.dto'
 import { JwtService } from '@nestjs/jwt'
+import { SignInDto } from './dto/sign-in.dto'
+import { AuthMessages } from 'src/constants/auth.messages'
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -17,11 +25,11 @@ export class AuthService implements AuthServiceInterface {
     const existingUser = await this.authorRepository.findOne({ where: { email: data.email } })
 
     if (existingUser != undefined || null) {
-      throw new ConflictException('User already exists.')
+      throw new ConflictException(AuthMessages.USER_NOT_FOUND)
     }
 
     if (data.password != data.samePassword) {
-      throw new UnauthorizedException("Passwords does't match.")
+      throw new UnauthorizedException(AuthMessages.PASSWORD_NOT_MATCH)
     }
 
     const newUser = this.authorRepository.create({
@@ -36,5 +44,24 @@ export class AuthService implements AuthServiceInterface {
     return {
       access_token: await this.jwtService.signAsync(payload, { secret: process.env.JWT_SECRET }),
     }
+  }
+
+  async signIn(data: SignInDto): Promise<Object | null> {
+    const user = await this.authorRepository.findOne({ where: { email: data.email } })
+
+    if (!user) {
+      throw new NotFoundException(AuthMessages.USER_NOT_FOUND)
+    }
+
+    const isPasswordValid = user.password === data.password
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(AuthMessages.INVALID_CREDENTIALS)
+    }
+
+    const payload = { sub: user.id, name: user.name }
+
+    const token = await this.jwtService.signAsync(payload, { secret: process.env.JWT_SECRET })
+
+    return { access_token: token }
   }
 }
