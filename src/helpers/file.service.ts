@@ -2,12 +2,21 @@ import * as fs from 'node:fs/promises'
 import * as path from 'path'
 
 export class FileService {
-  private getFilePath(fileName: string): string {
-    return path.join(process.cwd(), 'auth_logs', fileName)
+  private fileName: string
+  private fileDir: string
+  private mainDir: string = 'logs'
+
+  constructor(fileName: string, fileDir: string) {
+    this.fileName = fileName
+    this.fileDir = fileDir
+  }
+  private getFilePath(): string {
+    return path.join(process.cwd(), this.mainDir, this.fileDir, this.fileName)
   }
 
-  async createFile(fileName: string): Promise<void> {
-    const filePath = this.getFilePath(fileName)
+  async createFile(): Promise<void> {
+    const filePath = this.getFilePath()
+    console.log(filePath)
 
     try {
       await fs.mkdir(path.dirname(filePath), { recursive: true })
@@ -25,8 +34,9 @@ export class FileService {
     }
   }
 
-  async appendToFile(fileName: string, content: string): Promise<void> {
-    const filePath = this.getFilePath(fileName)
+  async appendToFile(content: string): Promise<void> {
+    const filePath = this.getFilePath()
+    console.log(filePath)
 
     try {
       await fs.appendFile(filePath, content + '\n', { encoding: 'utf-8' })

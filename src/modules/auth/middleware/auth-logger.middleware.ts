@@ -5,9 +5,12 @@ import { safeBody } from 'src/helpers/safeBody'
 
 @Injectable()
 export class AuthLogger implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction): void {
+  async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const date = new Date().toDateString()
-    const fileService = new FileService()
+
+    const fileDir = 'auth_logs'
+    const logFile = `Auth_Log-${date}.jsonl`
+    const fileService = new FileService(logFile, fileDir)
 
     const log = {
       requestId: crypto.randomUUID(),
@@ -19,9 +22,9 @@ export class AuthLogger implements NestMiddleware {
       query: req.query,
       userAgent: req.headers['user-agent'],
     }
-    const logFile = `Auth_Log-${date}.txt`
-    fileService.createFile(logFile)
-    fileService.appendToFile(logFile, JSON.stringify(log))
+
+    await fileService.createFile()
+    await fileService.appendToFile(JSON.stringify(log))
 
     next()
   }
