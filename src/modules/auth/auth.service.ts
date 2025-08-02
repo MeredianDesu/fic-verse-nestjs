@@ -13,6 +13,7 @@ import { SignUpDto } from './dto/sign-up.dto'
 import { JwtService } from '@nestjs/jwt'
 import { SignInDto } from './dto/sign-in.dto'
 import { AuthMessages } from 'src/constants/auth.messages'
+import { compareHashPassword, generateHashPassword } from 'src/helpers/hash-password'
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -34,7 +35,7 @@ export class AuthService implements AuthServiceInterface {
 
     const newUser = this.authorRepository.create({
       email: data.email,
-      password: data.password, // TODO сделать хэширование с солью
+      password: generateHashPassword(data.password),
     })
 
     await this.authorRepository.save(newUser)
@@ -53,7 +54,7 @@ export class AuthService implements AuthServiceInterface {
       throw new NotFoundException(AuthMessages.USER_NOT_FOUND)
     }
 
-    const isPasswordValid = user.password === data.password
+    const isPasswordValid = compareHashPassword(data.password, user.password)
     if (!isPasswordValid) {
       throw new UnauthorizedException(AuthMessages.INVALID_CREDENTIALS)
     }

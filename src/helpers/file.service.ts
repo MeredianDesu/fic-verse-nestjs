@@ -16,7 +16,6 @@ export class FileService {
 
   async createFile(): Promise<void> {
     const filePath = this.getFilePath()
-    console.log(filePath)
 
     try {
       await fs.mkdir(path.dirname(filePath), { recursive: true })
@@ -36,7 +35,6 @@ export class FileService {
 
   async appendToFile(content: string): Promise<void> {
     const filePath = this.getFilePath()
-    console.log(filePath)
 
     try {
       await fs.appendFile(filePath, content + '\n', { encoding: 'utf-8' })
