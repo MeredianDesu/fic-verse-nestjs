@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 import { AuthorModule } from '../author/author.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Author } from '../author/entities/author.entity'
 import { JwtModule } from '@nestjs/jwt'
+import { AuthLogger } from './middleware/auth-logger.middleware'
 
 @Module({
   imports: [
@@ -15,4 +16,8 @@ import { JwtModule } from '@nestjs/jwt'
   controllers: [AuthController],
   providers: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthLogger).forRoutes('auth')
+  }
+}
